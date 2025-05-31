@@ -4,11 +4,15 @@ using FarmGear_Application.Data;
 using FarmGear_Application.Models;
 using FarmGear_Application.Services;
 using FarmGear_Application.Utils;
+using FarmGear_Application.DTOs;
+using FarmGear_Application.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,10 +32,16 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 8;
+    options.Password.RequiredUniqueChars = 1;
 
     // 用户策略
     options.User.RequireUniqueEmail = true;
-    options.SignIn.RequireConfirmedEmail = true;
+    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
+
+    // Lockout settings
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
@@ -71,6 +81,11 @@ builder.Services.AddSingleton<JwtTokenGenerator>();
 
 // 注册控制器服务
 builder.Services.AddControllers();
+
+// 注册验证器
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator>();
+builder.Services.AddScoped<IValidator<LoginRequest>, LoginRequestValidator>();
 
 // 配置Swagger
 builder.Services.AddEndpointsApiExplorer();

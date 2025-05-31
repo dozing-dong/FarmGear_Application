@@ -113,6 +113,34 @@ public class AuthService : IAuthService
         new ApiResponse { Success = true, Message = "Confirmation email sent successfully" } :
         new ApiResponse { Success = false, Message = "Failed to send confirmation email" };
   }
+
+  /// <summary>
+  /// 检查用户名是否已被使用
+  /// </summary>
+  public async Task<bool> IsUsernameTakenAsync(string username)
+  {
+    if (string.IsNullOrWhiteSpace(username))
+    {
+      return false;
+    }
+
+    var user = await _userManager.FindByNameAsync(username);
+    return user != null;
+  }
+
+  /// <summary>
+  /// 检查邮箱是否已被注册
+  /// </summary>
+  public async Task<bool> IsEmailTakenAsync(string email)
+  {
+    if (string.IsNullOrWhiteSpace(email))
+    {
+      return false;
+    }
+
+    var user = await _userManager.FindByEmailAsync(email);
+    return user != null;
+  }
 }
 
 /// <summary>

@@ -36,4 +36,14 @@ public interface IAuthService
   /// <param name="user">用户信息</param>
   /// <returns>通用响应</returns>
   Task<ApiResponse> SendEmailConfirmationLinkAsync(AppUser user);
+
+  /// <summary>
+  /// 检查用户名是否已被使用
+  /// </summary>
+  Task<bool> IsUsernameTakenAsync(string username);
+
+  /// <summary>
+  /// 检查邮箱是否已被注册
+  /// </summary>
+  Task<bool> IsEmailTakenAsync(string email);
 }
